@@ -198,7 +198,7 @@ class Z_7(object):
 
     # multiplicative inverses
     # uses the residue classes to index themselves
-    # e.g., 2's multiplicative inverse mod 7 is 4
+    # e.g., 2's multiplicative ivnerse mod 7 is 4
     # hence inverses[2] = 4 and inverses[4] = 2
     inverses = (None, 1, 4, 5, 2, 3, 6)
  
