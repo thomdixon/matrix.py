@@ -166,6 +166,7 @@ class Matrix(object):
             for i in xrange(rows_len):
                 if matrix.rows()[i][i] == self.field()(0):
                     det = self.field()(0)
+                    break
         else:
             det = None
 
@@ -240,6 +241,7 @@ if __name__ == '__main__':
     print m
     print 'RREF:'
     print m.rref()
+    print 'Determinant:', m.det()
 
     print
     n = Z_7Matrix([[4,1,2,0], [1,6,3,3], [4,0,5,4]])
