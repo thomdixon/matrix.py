@@ -228,10 +228,17 @@ class Z_7(object):
         return Z_7(self._value + Z_7(x)._value)
 
     def __div__(self, x):
-        return self * Z_7(self.inverses[x._value])
+        if type(x) == IntType:
+            if x == 0:
+                raise ZeroDivisionError
+        elif hasattr(x, '_value'):
+            if x._value == 0:
+                raise ZeroDivisionError
+
+        return self * Z_7(self.inverses[Z_7(x)._value])
 
     def __sub__(self, x):
-        return self + (Z_7(self.inverses[-1]) * Z_7(x)) 
+        return self + (Z_7(-1) * Z_7(x)) 
 
     def __str__(self):
         return str(self._value)
@@ -242,6 +249,14 @@ if __name__ == '__main__':
     print 'RREF:'
     print m.rref()
     print 'Determinant:', m.det()
+
+    print
+    p = RationalMatrix([[-2,2,3], [-1,1,3], [2,0,-1]])
+    print p
+    print 'RREF:'
+    print p.rref()
+    print 'Determinant:', p.det()
+
 
     print
     n = Z_7Matrix([[4,1,2,0], [1,6,3,3], [4,0,5,4]])
