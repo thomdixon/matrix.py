@@ -34,7 +34,6 @@ class Matrix(object):
             rows = self.rows()
             self._columns = [[i[j] for i in rows]
                              for j in xrange(len(rows[0]))]
-            self.columns = lambda s: s._columns
         return self._columns
 
     def field(self):
