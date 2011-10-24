@@ -257,7 +257,6 @@ if __name__ == '__main__':
     print p.rref()
     print 'Determinant:', p.det()
 
-
     print
     n = Z_7Matrix([[4,1,2,0], [1,6,3,3], [4,0,5,4]])
     print n
