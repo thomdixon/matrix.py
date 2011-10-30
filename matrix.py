@@ -187,61 +187,81 @@ class RationalMatrix(Matrix):
 class Z_7Matrix(Matrix):
     '''Matrix with entries from Z_7.'''
     def __init__(self, row_vectors):
-        super(Z_7Matrix, self).__init__(Z_7, row_vectors)
+        super(Z_7Matrix, self).__init__(GF(7), row_vectors)
 
-# TODO: Implement extended-euclidean and use that to find multiplicative inverses
-# modulo a prime p in order to implement GF(p) in general.
-class Z_7(object):
-    '''Class representing the field Z_7. Wrote in 5 minutes. Might
-    contain errors.'''
+class Z_5Matrix(Matrix):
+    '''Matrix with entries from Z_5.'''
+    def __init__(self, row_vectors):
+        super(Z_5Matrix, self).__init__(GF(5), row_vectors)
 
-    # multiplicative inverses
-    # uses the residue classes to index themselves
-    # e.g., 2's multiplicative inverse mod 7 is 4
-    # hence inverses[2] = 4 and inverses[4] = 2
-    inverses = (None, 1, 4, 5, 2, 3, 6)
- 
-    def __init__(self, value=0):
-        if type(value) == IntType:
-            self._value = value % 7
-        elif type(value) == Z_7:
-            self._value = value._value
-        else:
-            raise TypeError('Only ints or Z_7s')
+def _xgcd(a, b):
+    if 0 == b:
+        return 1, 0
+    else:
+        q, r = a / b, a % b
+        s, t = _xgcd(b, r)
+        return t, s - q * t
 
-    def __eq__(self, x):
-        if hasattr(x, '_value'):
-            return self._value == x._value
-        else:
+def _normalize_residue(r, m):
+    return r % m if r >= m else _normalize_residue(r+m, m)
+
+def _modular_inverse(x, m):
+    return _normalize_residue(_xgcd(x, m)[0], m)
+
+def GF(p):
+    '''Factory method to generate Z/pZ for prime p.'''
+    class PrimeField(object):
+        '''Template class to return from this factory method.'''
+        def __init__(self, value=0):
+            if type(value) == IntType:
+                self._value = value % self.char()
+            elif hasattr(value, '_value'):
+                self._value = value._value
+            else:
+                raise TypeError('Only ints or GFs')
+
+        char = lambda s: s.characteristic()
+
+        def characteristic(self):
+            return self._char
+            
+        def __eq__(self, x):
+            if hasattr(x, '_value'):
+                return self._value == x._value
+            else:
+                return NotImplemented
+            
+        def __ne__(self, x):
+            r = self.__eq__(x)
+            if r is not NotImplemented:
+                return not r
             return NotImplemented
+        
+        def __mul__(self, x):
+            return GF(self.char())(self._value * GF(self.char())(x)._value)
+        
+        def __add__(self, x):
+            return GF(self.char())(self._value + GF(self.char())(x)._value)
+        
+        def __div__(self, x):
+            if type(x) == IntType:
+                if x == 0:
+                    raise ZeroDivisionError
+            elif hasattr(x, '_value'):
+                if x._value == 0:
+                    raise ZeroDivisionError
+                
+            return self * GF(self.char())(self._inverses[GF(self.char())(x)._value])
 
-    def __ne__(self, x):
-	r = self.__eq__(x)
-	if r is not NotImplemented:
-            return not r
-	return NotImplemented
-
-    def __mul__(self, x):
-        return Z_7(self._value * Z_7(x)._value)
-
-    def __add__(self, x):
-        return Z_7(self._value + Z_7(x)._value)
-
-    def __div__(self, x):
-        if type(x) == IntType:
-            if x == 0:
-                raise ZeroDivisionError
-        elif hasattr(x, '_value'):
-            if x._value == 0:
-                raise ZeroDivisionError
-
-        return self * Z_7(self.inverses[Z_7(x)._value])
-
-    def __sub__(self, x):
-        return self + (Z_7(-1) * Z_7(x)) 
-
-    def __str__(self):
-        return str(self._value)
+        def __sub__(self, x):
+            return self + (GF(self.char())(-1) * GF(self.char())(x)) 
+        
+        def __str__(self):
+            return str(self._value)
+ 
+    setattr(PrimeField, '_char', p)
+    setattr(PrimeField, '_inverses', map(lambda x: _modular_inverse(x, p), xrange(p)))
+    return PrimeField
 
 if __name__ == '__main__':
     m = RationalMatrix([[1,2,3], [4,5,6], [7,8,9]])
@@ -270,7 +290,13 @@ if __name__ == '__main__':
     print o.rref()
 
     print
-    o = Z_7Matrix([[0,0,5,0,0], [3,0,0,2,5], [5,1,1,6,1], [5,2,0,6,4]])
-    print o
+    q = Z_7Matrix([[0,0,5,0,0], [3,0,0,2,5], [5,1,1,6,1], [5,2,0,6,4]])
+    print q
     print 'RREF:'
-    print o.rref()
+    print q.rref()
+
+    print
+    r = Z_5Matrix([[0,0,5,0,0], [3,0,0,2,5], [5,1,1,6,1], [5,2,0,6,4]])
+    print r
+    print 'RREF:'
+    print r.rref()
