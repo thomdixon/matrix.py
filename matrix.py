@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from operator import eq, mul, add
+from operator import mul, add
 from types import IntType
-from fractions import Fraction
+from fractions import Fraction as QQ
 
 class DoesNotExistError(Exception):
     '''We raise this exception whenever we're told to perform a
@@ -179,21 +179,6 @@ class Matrix(object):
                                           for i in row]) + ']' 
                           for row in self.rows()])
 
-class RationalMatrix(Matrix):
-    '''Matrix with entries from the rational field.'''
-    def __init__(self, row_vectors):
-        super(RationalMatrix, self).__init__(Fraction, row_vectors)
-
-class Z_7Matrix(Matrix):
-    '''Matrix with entries from Z_7.'''
-    def __init__(self, row_vectors):
-        super(Z_7Matrix, self).__init__(GF(7), row_vectors)
-
-class Z_5Matrix(Matrix):
-    '''Matrix with entries from Z_5.'''
-    def __init__(self, row_vectors):
-        super(Z_5Matrix, self).__init__(GF(5), row_vectors)
-
 def _xgcd(a, b):
     if 0 == b:
         return 1, 0
@@ -218,7 +203,7 @@ def GF(p):
             elif hasattr(value, '_value'):
                 self._value = value._value
             else:
-                raise TypeError('Only ints or GFs')
+                raise TypeError('Only ints or PrimeFields')
 
         char = lambda s: s.characteristic()
 
@@ -264,39 +249,40 @@ def GF(p):
     return PrimeField
 
 if __name__ == '__main__':
-    m = RationalMatrix([[1,2,3], [4,5,6], [7,8,9]])
+    m = Matrix(QQ, [[1,2,3], [4,5,6], [7,8,9]])
     print m
     print 'RREF:'
     print m.rref()
     print 'Determinant:', m.det()
 
     print
-    p = RationalMatrix([[-2,2,3], [-1,1,3], [2,0,-1]])
+    p = Matrix(QQ, [[-2,2,3], [-1,1,3], [2,0,-1]])
     print p
     print 'RREF:'
     print p.rref()
     print 'Determinant:', p.det()
 
     print
-    n = Z_7Matrix([[4,1,2,0], [1,6,3,3], [4,0,5,4]])
+    n = Matrix(GF(7), [[4,1,2,0], [1,6,3,3], [4,0,5,4]])
     print n
     print 'RREF:'
     print n.rref()
 
     print
-    o = Z_7Matrix([[0,4,3], [2,4,0], [3,0,6], [0,2,3]])
+    o = Matrix(GF(7), [[0,4,3], [2,4,0], [3,0,6], [0,2,3]])
     print o
     print 'RREF:'
     print o.rref()
 
     print
-    q = Z_7Matrix([[0,0,5,0,0], [3,0,0,2,5], [5,1,1,6,1], [5,2,0,6,4]])
+    q = Matrix(GF(7), [[0,0,5,0,0], [3,0,0,2,5], [5,1,1,6,1], [5,2,0,6,4]])
     print q
     print 'RREF:'
     print q.rref()
 
     print
-    r = Z_5Matrix([[0,0,5,0,0], [3,0,0,2,5], [5,1,1,6,1], [5,2,0,6,4]])
+    r = Matrix(GF(5), [[0,0,5,0], [3,0,0,2], [5,1,1,6], [5,2,0,6]])
     print r
     print 'RREF:'
     print r.rref()
+    print 'Determinant:', r.det()
