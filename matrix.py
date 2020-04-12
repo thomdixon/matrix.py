@@ -30,7 +30,7 @@ class Matrix(object):
 
     def columns(self):
         # lazily compute the columns
-        if None == self._columns:
+        if not hasattr(self, '_columns'):
             rows = self.rows()
             self._columns = [[i[j] for i in rows]
                              for j in xrange(len(rows[0]))]
@@ -50,7 +50,7 @@ class Matrix(object):
     def swap_rows(self, i, j):
         '''Swap row i with row j and yield the resulting
         matrix. Zero-indexed.'''
-        rows = [row for row in self.rows()] # don't use the reference
+        rows = list(self.rows()) # don't use the reference
         rows[i], rows[j] = rows[j], rows[i]
         return Matrix(self.field(), rows)
 
@@ -59,14 +59,14 @@ class Matrix(object):
 
     def scale_row(self, i, a):
         '''Scale row i by a. Zero-indexed.'''
-        rows = [row for row in self.rows()]
+        rows = list(self.rows())
         scaled = [self.field()(a) * j for j in rows[i]]
         rows[i] = scaled
         return Matrix(self.field(), rows)
 
     def scale_and_add_row(self, i, a, j):
         '''Scale row i by a and add it to row j. Zero-indexed.'''
-        rows = [row for row in self.rows()]
+        rows = list(self.rows())
         scaled = [self.field()(a) * k for k in rows[i]]
         rows[j] = map(add, scaled, rows[j])
         return Matrix(self.field(), rows)
@@ -80,7 +80,7 @@ class Matrix(object):
         if not self.is_square():
             raise DoesNotExistError('Attempt to take determinant of non-square matrix.')
 
-        if None == self._det:
+        if not hasattr(self, '_det'):
             self._rref, self._det = self._gauss_jordan()
 
         return self._det
@@ -103,7 +103,7 @@ class Matrix(object):
                                      for column in matrix.columns()])
 
     def rref(self):
-        if None == self._rref:
+        if not hasattr(self, '_rref'):
             self._rref, self._det = self._gauss_jordan()
         return self._rref
 
